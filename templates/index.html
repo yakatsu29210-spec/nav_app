@@ -3,38 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>天文航法プロトタイプ（改良版）</title>
+  <title>天測計算援助Webアプリ</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <main>
-    <h1>天文航法プロトタイプ（改良版）</h1>
+    <h1>天測計算援助Webアプリ</h1>
 
     <section>
-      <h2>ステップ1: 推測位置・時刻 → 可視星取得</h2>
+      <h2>ステップ1: 推測位置・時刻 → 可視恒星取得</h2>
       <label>緯度 (°): <input id="lat" type="number" step="0.000001" value="35.0"></label>
       <label>経度 (°): <input id="lon" type="number" step="0.000001" value="135.0"></label>
-      <label>大まかな時刻 (ISO, UTC推奨): <input id="time" type="text" value="2026-01-15T21:30:00Z"></label>
-      <button id="btnVisible">可視星取得</button>
+      <label>大まかな時刻 (UTC推奨): <input id="time" type="text" value="2026-01-15T21:30:00Z"></label>
+      <button id="btnVisible">可視恒星取得</button>
       <div id="visibleList"></div>
     </section>
 
     <section>
-      <h2>ステップ2: 眼高・気象</h2>
+      <h2>ステップ2: 眼高・気圧・気温入力</h2>
       <label>眼高 (m): <input id="eye" type="number" step="0.1" value="3.0"></label>
       <label>気圧 (hPa): <input id="press" type="number" step="0.1" value="1013.0"></label>
       <label>気温 (°C): <input id="temp" type="number" step="0.1" value="15.0"></label>
     </section>
 
     <section>
-      <h2>ステップ3: 3つの観測を入力（恒星は可視星から選択）</h2>
+      <h2>ステップ3: 3つの観測値を入力（恒星は可視星から選択）</h2>
       <div id="obsList"></div>
-      <button id="btnCompute">位置計算（3観測以上）</button>
+      <button id="btnCompute">位置計算（3観測）</button>
       <div id="resultArea"></div>
     </section>
 
     <footer>
-      <small>Skyfield を使用した研究用プロトタイプ。公共航海での使用前に十分な検証を行ってください。</small>
+      <small>Skyfield を使用した研究用プロトタイプです。実航海で使用した際の一切の責任を負いかねます。</small>
     </footer>
   </main>
 
