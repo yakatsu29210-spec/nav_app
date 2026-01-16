@@ -1,0 +1,5 @@
+Flask>=2.0
+skyfield>=1.50
+numpy
+pytz
+scipy>=1.7
