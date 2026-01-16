@@ -18,20 +18,20 @@ from flask import request, redirect, url_for, make_response, g
 # --- simple i18n dictionary ---
 I18N = {
     'ja': {
-        'title': '天文航法プロトタイプ（改良版）',
-        'header': '天文航法プロトタイプ（改良版）',
-        'step1': 'ステップ1: 推測位置・時刻 → 可視星取得',
+        'title': '天測計算援助Webアプリ',
+        'header': '天測計算援助Webアプリ',
+        'step1': 'ステップ1: 推測位置・時刻 → 可視恒星表示',
         'lat': '緯度 (°):',
         'lon': '経度 (°):',
-        'time': '大まかな時刻 (ISO, UTC推奨):',
-        'btn_visible': '可視星取得',
+        'time': '大まかな時刻 (UTC):',
+        'btn_visible': '可視恒星表示',
         'step2': 'ステップ2: 眼高・気象',
         'eye': '眼高 (m):',
         'press': '気圧 (hPa):',
         'temp': '気温 (°C):',
-        'step3': 'ステップ3: 3つの観測を入力（恒星は可視星から選択）',
+        'step3': 'ステップ3: 3つの観測値を入力',
         'btn_compute': '位置計算（3観測以上）',
-        'footer': 'Skyfield を使用した研究用プロトタイプ。公共航海での使用前に十分な検証を行ってください。',
+        'footer': 'Skyfield を使用した研究用プロトタイプです。',
         'alert_need_obs': '少なくとも1つの観測を入力してください（推奨は3つ）',
         'visible_none': '可視な星が見つかりませんでした（高度や時刻を変えてください）',
         'api_error': 'サーバーエラーが発生しました'
