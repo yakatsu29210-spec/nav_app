@@ -1,15 +1,150 @@
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  padding: 1rem;
-  max-width: 900px;
-  margin: auto;
+/* 既存 style.css を置き換える（または以下を追記してください） */
+:root{
+  --max-width: 1100px;
+  --accent: #0b5e96;
+  --muted: #666;
 }
-h1 { font-size: 1.4rem; }
-section { border: 1px solid #ddd; padding: 0.8rem; margin: 0.8rem 0; border-radius: 6px; }
-label { display: block; margin: 0.4rem 0; }
-#visibleList { margin-top: 0.6rem; }
-.obsRow { display:flex; gap:6px; align-items:center; margin:6px 0; flex-wrap:wrap; }
-.obsRow select, .obsRow input { padding:4px; }
-button { margin-top: 0.5rem; padding: 0.4rem 0.6rem; }
-table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; }
-td, th { border: 1px solid #ccc; padding: 6px; text-align: left; }
+
+body{
+  font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  margin: 0;
+  padding: 0 12px;
+  color: #111;
+  background: #fff;
+}
+
+.container{
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.site-title{
+  margin: 20px 0;
+  font-size: 1.8rem;
+  color: var(--accent);
+}
+
+/* ヘッダー */
+.site-header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+/* 右上言語メニュー */
+.lang-menu {
+  position: relative;
+  display: inline-block;
+}
+.lang-toggle {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.lang-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  display: none;
+  min-width: 140px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.lang-dropdown a {
+  display: block;
+  padding: 8px 12px;
+  color: #111;
+  text-decoration: none;
+  border-bottom: 1px solid #f2f2f2;
+}
+.lang-dropdown a:hover { background: #f8faff; }
+
+/* ドロップダウンを開いているときに表示 */
+.lang-menu.open .lang-dropdown { display: block; }
+
+/* セクションごとに余白 */
+.form-section, section{
+  margin-bottom: 28px;
+  padding: 8px 0;
+}
+
+/* 横並びフォーム */
+.row{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.row label{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #fafafa;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.row.small label{
+  padding: 4px 6px;
+}
+
+/* 入力幅の調整 */
+.row input[type="number"],
+.row input[type="text"]{
+  width: 160px;
+  padding: 6px 8px;
+}
+
+/* Time ラベルだけ幅広 */
+label.time input{
+  width: 260px;
+}
+
+/* ボタン */
+button{
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover{ opacity: 0.95; }
+
+/* 可視星テーブル */
+.visible-list table{
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.visible-list th, .visible-list td{
+  border: 1px solid #e6e6e6;
+  padding: 8px;
+  text-align: left;
+}
+.visible-list tr.selected { background: #fffae6; }
+
+/* スマホ対応 */
+@media (max-width: 680px){
+  .row input[type="number"], .row input[type="text"]{ width: 100%; }
+  .row{ flex-direction: column; align-items: stretch; }
+  label.time input { width: 100%; }
+}
