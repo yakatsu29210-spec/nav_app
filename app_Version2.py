@@ -8,6 +8,80 @@ from scipy.optimize import minimize
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+# 既存の /api/visible_stars, /api/compute_fix などのルートはそのまま残して下さい。
+# このブロックはテンプレートに翻訳関数 `_()` と JS 用の I18N_JSON を注入し、
+# /set_language/<lang> ルートを追加します。
+
+import json
+from flask import request, redirect, url_for, make_response, g
+
+# --- simple i18n dictionary ---
+I18N = {
+    'ja': {
+        'title': '天文航法プロトタイプ（改良版）',
+        'header': '天文航法プロトタイプ（改良版）',
+        'step1': 'ステップ1: 推測位置・時刻 → 可視星取得',
+        'lat': '緯度 (°):',
+        'lon': '経度 (°):',
+        'time': '大まかな時刻 (ISO, UTC推奨):',
+        'btn_visible': '可視星取得',
+        'step2': 'ステップ2: 眼高・気象',
+        'eye': '眼高 (m):',
+        'press': '気圧 (hPa):',
+        'temp': '気温 (°C):',
+        'step3': 'ステップ3: 3つの観測を入力（恒星は可視星から選択）',
+        'btn_compute': '位置計算（3観測以上）',
+        'footer': 'Skyfield を使用した研究用プロトタイプ。公共航海での使用前に十分な検証を行ってください。',
+        'alert_need_obs': '少なくとも1つの観測を入力してください（推奨は3つ）',
+        'visible_none': '可視な星が見つかりませんでした（高度や時刻を変えてください）',
+        'api_error': 'サーバーエラーが発生しました'
+    },
+    'en': {
+        'title': 'Celestial Navigation Prototype (Improved)',
+        'header': 'Celestial Navigation Prototype (Improved)',
+        'step1': 'Step 1: Initial position/time → Get visible stars',
+        'lat': 'Latitude (°):',
+        'lon': 'Longitude (°):',
+        'time': 'Approx. time (ISO, UTC recommended):',
+        'btn_visible': 'Get visible stars',
+        'step2': "Step 2: Eye height & weather",
+        'eye': 'Eye height (m):',
+        'press': 'Pressure (hPa):',
+        'temp': 'Temperature (°C):',
+        'step3': 'Step 3: Enter 3 observations (choose stars from visible list)',
+        'btn_compute': 'Compute position (3+ obs)',
+        'footer': 'Research prototype using Skyfield. Validate thoroughly before public navigation use.',
+        'alert_need_obs': 'Please enter at least one observation (3 recommended)',
+        'visible_none': 'No visible stars found (try different time/position)',
+        'api_error': 'Server error occurred'
+    }
+}
+
+DEFAULT_LANG = 'ja'
+
+@app.before_request
+def load_language():
+    lang = request.cookies.get('lang')
+    if not lang or lang not in I18N:
+        lang = DEFAULT_LANG
+    g.lang = lang
+
+@app.context_processor
+def inject_i18n():
+    def _(key):
+        return I18N.get(g.get('lang', DEFAULT_LANG), {}).get(key, key)
+    i18n_json = json.dumps(I18N.get(g.get('lang', DEFAULT_LANG), {}), ensure_ascii=False)
+    return dict(_=_, I18N_JSON=i18n_json, CURRENT_LANG=g.get('lang', DEFAULT_LANG))
+
+@app.route('/set_language/<lang>')
+def set_language(lang):
+    next_url = request.args.get('next') or url_for('index')
+    if lang not in I18N:
+        lang = DEFAULT_LANG
+    resp = make_response(redirect(next_url))
+    resp.set_cookie('lang', lang, max_age=60*60*24*365)
+    return resp
+
 # --- 簡易星表（代表的な明るい星） ---
 STAR_CATALOG = [
     {"id": "Sirius", "ra_h": 6.752477, "dec_deg": -16.716116, "mag": -1.46},
