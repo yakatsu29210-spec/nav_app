@@ -1,45 +1,28 @@
-<!doctype html>
-<html lang="{{ CURRENT_LANG }}">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{% block title %}{{ _('title') }}{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  {% block head_extra %}{% endblock %}
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ _('title') }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <h1 class="site-title">{{ _('header') }}</h1>
+<header>
+    <h1>{{ _('title') }}</h1>
+    <nav>
+        <a href="{{ url_for('set_language', lang='ja', next=request.full_path) }}">日本語</a> |
+        <a href="{{ url_for('set_language', lang='en', next=request.full_path) }}">English</a>
+        <span class="lang">[{{ CURRENT_LANG.upper() }}]</span>
+    </nav>
+</header>
 
-      <!-- 右上の言語メニュー -->
-      <div class="lang-menu" id="langMenu">
-        <button id="langToggle" class="lang-toggle" aria-haspopup="true" aria-expanded="false">
-          {{ CURRENT_LANG.upper() }}
-        </button>
-        <div class="lang-dropdown" id="langDropdown" aria-hidden="true">
-          <a href="{{ url_for('set_language', lang='ja', next=request.path + (('?'+request.query_string.decode()) if request.query_string else '')) }}">日本語</a>
-          <a href="{{ url_for('set_language', lang='en', next=request.path + (('?'+request.query_string.decode()) if request.query_string else '')) }}">English</a>
-        </div>
-      </div>
+<main>
+{% block content %}{% endblock %}
+</main>
 
-    </div>
-  </header>
+<footer>
+    <p>Celestial Navigation Prototype</p>
+</footer>
 
-  <main class="container">
-    {% block content %}{% endblock %}
-  </main>
-
-  <footer class="container">
-    <small>{{ _('footer') }}</small>
-  </footer>
-
-  <!-- I18N を JS 側に渡す -->
-  <script>
-    window.I18N = {{ I18N_JSON | safe }};
-    window.CURRENT_LANG = "{{ CURRENT_LANG }}";
-  </script>
-  <script src="{{ url_for('static', filename='app.js') }}"></script>
-  {% block scripts %}{% endblock %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
