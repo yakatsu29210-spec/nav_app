@@ -7,8 +7,11 @@ import numpy as np
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # =====================================================
-# i18n（テンプレート互換のため必須）
+# i18n（templates 完全互換）
 # =====================================================
+import json
+from flask import g
+
 I18N = {
     'ja': {
         'title': '天文航法プロトタイプ',
@@ -32,8 +35,13 @@ def load_language():
 @app.context_processor
 def inject_i18n():
     def _(key):
-        return I18N.get(g.get('lang', DEFAULT_LANG), {}).get(key, key)
-    return dict(_=_)
+        return I18N.get(g.lang, {}).get(key, key)
+
+    return dict(
+        _=_,
+        CURRENT_LANG=g.lang,
+        I18N_JSON=json.dumps(I18N[g.lang], ensure_ascii=False)
+    )
 
 # =====================================================
 # Index
