@@ -2,11 +2,13 @@ from flask import Flask, request, jsonify, render_template
 from skyfield.api import load, Topos, Star
 from math import sqrt, tan, radians, cos, sin
 import datetime
-import pytz
 import numpy as np
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+# =====================================================
+# Index
+# =====================================================
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -27,7 +29,7 @@ PLANETS = {
 }
 
 # =====================================================
-# 航海用恒星（HIP付き・拡張）
+# 航海用恒星（拡張・HIP付き）
 # =====================================================
 STAR_CATALOG = [
     {"id": "Sirius", "hip": 32349, "ra_h": 6.75248, "dec_deg": -16.7161},
@@ -48,7 +50,7 @@ STAR_CATALOG = [
 ]
 
 for s in STAR_CATALOG:
-    s["star_obj"] = Star(ra_hours=s["ra_h"], dec_degrees=s["dec_deg"])
+    s["obj"] = Star(ra_hours=s["ra_h"], dec_degrees=s["dec_deg"])
 
 # =====================================================
 # 補正
@@ -56,11 +58,11 @@ for s in STAR_CATALOG:
 def dip_correction(eye_m):
     return -1.76 * sqrt(eye_m) / 60.0 if eye_m > 0 else 0.0
 
-def bennett_refraction(alt_deg, pressure, temp):
-    if alt_deg <= -1:
+def bennett_refraction(hs_deg, pressure, temp):
+    if hs_deg <= 0:
         return 0.0
-    alt = radians(max(alt_deg, 0.1))
-    R = 1.02 / tan(alt + 10.3 / (alt_deg + 5.11))
+    alt = radians(max(hs_deg, 0.1))
+    R = 1.02 / tan(alt + 10.3 / (hs_deg + 5.11))
     return R * (pressure / 1010.0) * (283.0 / (273.0 + temp)) / 60.0
 
 def compute_alt_az(lat, lon, body, t):
@@ -81,7 +83,7 @@ def visible_stars():
     visible = []
 
     for s in STAR_CATALOG:
-        alt, az = compute_alt_az(lat, lon, s["star_obj"], t)
+        alt, az = compute_alt_az(lat, lon, s["obj"], t)
         if alt > 2.0:
             visible.append({
                 "id": s["id"],
@@ -93,7 +95,7 @@ def visible_stars():
     return jsonify({"visible": visible})
 
 # =====================================================
-# LOP 位置計算（2〜3観測対応）
+# LOP 位置計算（恒星・太陽・月・惑星対応）
 # =====================================================
 @app.route('/api/compute_fix', methods=['POST'])
 def compute_fix():
@@ -101,6 +103,10 @@ def compute_fix():
 
     lat0 = float(d['initial_lat'])
     lon0 = float(d['initial_lon'])
+
+    if not (-90 <= lat0 <= 90 and -180 <= lon0 <= 180):
+        return jsonify({"error": "初期位置が不正です"}), 400
+
     eye = float(d.get('eye_height_m', 0))
     p = float(d.get('pressure_hpa', 1013))
     temp = float(d.get('temp_c', 15))
@@ -113,11 +119,26 @@ def compute_fix():
 
     for o in obs:
         t = ts.from_datetime(datetime.datetime.fromisoformat(o['time'].replace('Z', '+00:00')))
-        Hs = float(o['deg']) + float(o['min']) / 60.0
+        deg = float(o['deg'])
+        minute = float(o['min'])
+
+        if not (0 <= minute < 60):
+            return jsonify({"error": "分は0〜60未満"}), 400
+
+        Hs = deg + minute / 60.0
         Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
 
-        star = next(s for s in STAR_CATALOG if s["id"] == o["star_id"])
-        Hc, Zn = compute_alt_az(lat0, lon0, star["star_obj"], t)
+        # 天体取得
+        if o['type'] == 'star':
+            body = next(s["obj"] for s in STAR_CATALOG if s["id"] == o["id"])
+        elif o['type'] == 'sun':
+            body = SUN
+        elif o['type'] == 'moon':
+            body = MOON
+        else:
+            body = PLANETS[o['id']]
+
+        Hc, Zn = compute_alt_az(lat0, lon0, body, t)
         a = (Ho - Hc) * 60.0
 
         A.append([cos(radians(Zn)), sin(radians(Zn))])
@@ -135,14 +156,16 @@ def compute_fix():
     lat = max(-90, min(90, lat))
     lon = ((lon + 180) % 360) - 180
 
-    err = sqrt(np.mean((A @ x - b) ** 2))
+    residuals = A @ x - b
+    err_nm = sqrt(np.mean(residuals ** 2))
 
     return jsonify({
         "estimated_lat": round(lat, 6),
         "estimated_lon": round(lon, 6),
-        "error_radius_nm": round(err, 3),
+        "error_radius_nm": round(err_nm, 3),
         "used_observations": len(obs)
     })
 
+# =====================================================
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
