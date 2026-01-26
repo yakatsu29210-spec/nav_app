@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, g
 from skyfield.api import load, Topos, Star
 from math import sqrt, tan, radians, cos, sin
 import datetime
