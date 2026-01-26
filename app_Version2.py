@@ -1,10 +1,25 @@
 from flask import Flask, request, jsonify, render_template, g
+from flask import redirect, url_for, request, make_response
 from skyfield.api import load, Topos, Star
 from math import sqrt, tan, radians, cos, sin
 import datetime
 import numpy as np
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+# =====================================================
+# Language switcher（templates互換）
+# =====================================================
+@app.route('/set_language/<lang>')
+def set_language(lang):
+    next_url = request.args.get('next', url_for('index'))
+
+    if lang not in I18N:
+        lang = DEFAULT_LANG
+
+    resp = make_response(redirect(next_url))
+    resp.set_cookie('lang', lang, max_age=60 * 60 * 24 * 365)
+    return resp
 
 # =====================================================
 # i18n（templates 完全互換）
