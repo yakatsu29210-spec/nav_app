@@ -7,6 +7,35 @@ import numpy as np
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # =====================================================
+# i18n（テンプレート互換のため必須）
+# =====================================================
+I18N = {
+    'ja': {
+        'title': '天文航法プロトタイプ',
+    },
+    'en': {
+        'title': 'Celestial Navigation Prototype',
+    }
+}
+
+DEFAULT_LANG = 'ja'
+
+
+@app.before_request
+def load_language():
+    lang = request.cookies.get('lang')
+    if not lang or lang not in I18N:
+        lang = DEFAULT_LANG
+    g.lang = lang
+
+
+@app.context_processor
+def inject_i18n():
+    def _(key):
+        return I18N.get(g.get('lang', DEFAULT_LANG), {}).get(key, key)
+    return dict(_=_)
+
+# =====================================================
 # Index
 # =====================================================
 @app.route('/')
