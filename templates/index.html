@@ -1,30 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section>
-  <h2>{{ _('step1') }}</h2>
-  <div class="row">
-    <label>{{ _('lat') }} <input id="lat" type="number" step="0.000001" value="35.0"></label>
-    <label>{{ _('lon') }} <input id="lon" type="number" step="0.000001" value="135.0"></label>
-    <label class="time">{{ _('time') }} <input id="time" type="text" value="2026-01-15T21:30:00Z"></label>
-    <button id="btnVisible">{{ _('btn_visible') }}</button>
-  </div>
-  <div id="visibleList"></div>
+<section class="panel">
+    <h2>推測位置（DR Position）</h2>
+
+    <label>緯度（deg）:
+        <input id="init-lat" type="number" step="0.0001" value="35.0">
+    </label>
+
+    <label>経度（deg）:
+        <input id="init-lon" type="number" step="0.0001" value="135.0">
+    </label>
+
+    <label>眼高（m）:
+        <input id="eye" type="number" step="0.1" value="5">
+    </label>
+
+    <label>気圧（hPa）:
+        <input id="pressure" type="number" value="1013">
+    </label>
+
+    <label>気温（℃）:
+        <input id="temp" type="number" value="15">
+    </label>
 </section>
 
-<section>
-  <h2>{{ _('step2') }}</h2>
-  <div class="row small">
-    <label>{{ _('eye') }} <input id="eye" type="number" step="0.1" value="3.0"></label>
-    <label>{{ _('press') }} <input id="press" type="number" step="0.1" value="1013.0"></label>
-    <label>{{ _('temp') }} <input id="temp" type="number" step="0.1" value="15.0"></label>
-  </div>
+<section class="panel">
+    <h2>観測入力（2〜3観測）</h2>
+
+    <table id="obs-table">
+        <thead>
+            <tr>
+                <th>天体</th>
+                <th>種別</th>
+                <th>高度（deg）</th>
+                <th>分（0.0〜59.9）</th>
+                <th>時刻（UTC）</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input value="Sirius"></td>
+                <td>
+                    <select>
+                        <option value="star">Star</option>
+                        <option value="sun">Sun</option>
+                        <option value="moon">Moon</option>
+                        <option value="Venus">Venus</option>
+                        <option value="Mars">Mars</option>
+                        <option value="Jupiter">Jupiter</option>
+                        <option value="Saturn">Saturn</option>
+                    </select>
+                </td>
+                <td><input type="number" step="1"></td>
+                <td><input type="number" step="0.1"></td>
+                <td><input type="datetime-local"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button onclick="addRow()">観測追加</button>
+    <button onclick="computeFix()">位置計算</button>
 </section>
 
-<section>
-  <h2>{{ _('step3') }}</h2>
-  <div id="obsList"></div>
-  <button id="btnCompute">{{ _('btn_compute') }}</button>
-  <div id="resultArea"></div>
+<section class="panel">
+    <h2>計算結果</h2>
+    <pre id="result">---</pre>
 </section>
 {% endblock %}
