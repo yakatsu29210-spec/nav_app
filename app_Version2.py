@@ -29,10 +29,10 @@ from flask import g
 
 I18N = {
     'ja': {
-        'title': '天文航法プロトタイプ',
+        'title': 'Sight Reduction',
     },
     'en': {
-        'title': 'Celestial Navigation Prototype',
+        'title': 'Sight Reduction',
     }
 }
 
