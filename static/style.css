@@ -1,52 +1,56 @@
 body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
     margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #f2f4f7;
 }
 
 header {
     background: #003366;
     color: white;
-    padding: 1em;
+    padding: 1rem;
 }
 
 header nav a {
-    color: #ffdd88;
-    margin-right: 10px;
+    color: #ffd;
+    margin-right: 0.5rem;
     text-decoration: none;
 }
 
-header .lang {
-    margin-left: 10px;
-}
-
 main {
-    padding: 1em;
+    padding: 1rem;
 }
 
-.panel {
+.card {
     background: white;
-    padding: 1em;
-    margin-bottom: 1em;
-    border-radius: 6px;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
 
-label {
-    display: block;
-    margin-bottom: 0.5em;
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #ccc;
-    padding: 5px;
+input, select, button {
+    font-size: 1rem;
+    padding: 0.6rem;
 }
 
 button {
-    margin-top: 10px;
-    padding: 6px 12px;
+    background: #0066aa;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+
+button:disabled {
+    background: #aaa;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
