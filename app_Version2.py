@@ -159,61 +159,63 @@ def visible_stars():
 def compute_fix():
     d = request.get_json()
 
-    lat0 = float(d['initial_lat'])
-    lon0 = float(d['initial_lon'])
-
-    if not (-90 <= lat0 <= 90 and -180 <= lon0 <= 180):
-        return jsonify({"error": "初期位置が不正です"}), 400
+    lat0 = float(d["initial_lat"])
+    lon0 = float(d["initial_lon"])
 
     course = float(d.get("course_deg", 0))
     speed = float(d.get("speed_kt", 0))
+
     base_time = datetime.datetime.fromisoformat(
-    d["base_time"].replace("Z", "+00:00")
+        d["base_time"].replace("Z", "+00:00")
     )
 
-    eye = float(d.get('eye_height_m', 0))
-    p = float(d.get('pressure_hpa', 1013))
-    temp = float(d.get('temp_c', 15))
-    obs = d['observations']
+    eye = float(d.get("eye_height_m", 0))
+    p = float(d.get("pressure_hpa", 1013))
+    temp = float(d.get("temp_c", 15))
+
+    obs = d["observations"]
 
     if len(obs) < 2:
         return jsonify({"error": "2観測以上が必要です"}), 400
 
-    A, b = [], []
+    A = []
+    b = []
 
-for o in obs:
-    obs_time = datetime.time.fromisoformat(o["obs_time"])
+    for o in obs:
+        obs_time = datetime.time.fromisoformat(o["obs_time"])
 
-    t_obs = datetime.datetime.combine(
-        base_time.date(),
-        obs_time,
-        tzinfo=pytz.UTC
-    )
+        t_obs = datetime.datetime.combine(
+            base_time.date(),
+            obs_time,
+            tzinfo=pytz.UTC
+        )
 
-    delta_h = (t_obs - base_time).total_seconds() / 3600.0
+        delta_h = (t_obs - base_time).total_seconds() / 3600.0
 
-    lat_dr, lon_dr = dr_position(
-        lat0,
-        lon0,
-        course,
-        speed,
-        delta_h
-    )
+        # DR位置
+        lat_dr, lon_dr = dr_position(
+            lat0, lon0,
+            course, speed,
+            delta_h
+        )
 
-    t = ts.from_datetime(t_obs)
+        t = ts.from_datetime(t_obs)
 
-    Hs = float(o["deg"]) + float(o["min"]) / 60.0
-    Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
+        # 観測高度
+        Hs = float(o["deg"]) + float(o["min"]) / 60.0
+        Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
 
-    star = next(s for s in STAR_CATALOG if s["id"] == o["id"])
+        # 恒星取得
+        star = next(s for s in STAR_CATALOG if s["id"] == o["id"])
 
-    Hc, Zn = compute_alt_az(lat_dr, lon_dr, star["star_obj"], t)
+        # 計算高度・方位角
+        Hc, Zn = compute_alt_az(lat_dr, lon_dr, star["star_obj"], t)
 
-    a = (Ho - Hc) * 60.0
+        # 截距（NM）
+        a = (Ho - Hc) * 60.0
 
-    A.append([cos(radians(Zn)), sin(radians(Zn))])
-    b.append(a)
-
+        A.append([cos(radians(Zn)), sin(radians(Zn))])
+        b.append(a)
 
     A = np.array(A)
     b = np.array(b)
@@ -227,15 +229,16 @@ for o in obs:
     lat = max(-90, min(90, lat))
     lon = ((lon + 180) % 360) - 180
 
-    residuals = A @ x - b
-    err_nm = sqrt(np.mean(residuals ** 2))
+    err = sqrt(np.mean((A @ x - b) ** 2))
 
     return jsonify({
         "estimated_lat": round(lat, 6),
         "estimated_lon": round(lon, 6),
-        "error_radius_nm": round(err_nm, 3),
-        "used_observations": len(obs)
+        "error_radius_nm": round(err, 3),
+        "used_observations": len(obs),
+        "fix_type": "Running Fix"
     })
+
 
 # =====================================================
 if __name__ == '__main__':
