@@ -13,9 +13,9 @@ function loadVisibleStars() {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            lat: document.getElementById("lat").value,
-            lon: document.getElementById("lon").value,
-            time: localToUTCISOString(document.getElementById("time").value)
+            lat: document.getElementById("initial_lat").value,
+            lon: document.getElementById("initial_lon").value,
+            time: toUTCString(document.getElementById("base_time").value)
         })
     })
     .then(r => r.json())
@@ -102,7 +102,9 @@ function computeFix() {
             id: g.querySelector(".star").value,
             deg: g.children[2].value,
             min: g.children[3].value,
-            obs_time: g.querySelector(".obs-time").value
+            obs_time: toUTCString(
+                g.querySelector(".obs-time").value
+            )
         });
 
     });
@@ -111,11 +113,11 @@ function computeFix() {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            initial_lat: document.getElementById("lat").value,
-            initial_lon: document.getElementById("lon").value,
+            initial_lat: document.getElementById("initial_lat").value,
+            initial_lon: document.getElementById("initial_lon").value,
             course_deg: document.getElementById("course").value,
             speed_kt: document.getElementById("speed").value,
-            base_time: localToUTCISOString(document.getElementById("time").value),
+            base_time: toUTCString(document.getElementById("base_time").value),
             observations: obs
         })
     })
