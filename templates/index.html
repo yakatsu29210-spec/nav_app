@@ -1,29 +1,32 @@
 {% extends "base.html" %}
-
 {% block content %}
 
 <section class="card">
-    <h2>DR Position</h2>
-
+    <h2>DR Position & Approx. Observation Time (UTC)</h2>
     <div class="grid">
         <input id="lat" type="number" step="0.0001" placeholder="Latitude (deg)">
         <input id="lon" type="number" step="0.0001" placeholder="Longitude (deg)">
         <input id="time" type="datetime-local">
     </div>
-
     <button onclick="loadVisibleStars()">可視恒星を表示</button>
 </section>
 
 <section class="card">
     <h2>Visible Stars</h2>
-    <select id="visible-stars" size="6"></select>
+
+    <div id="visible-list" class="star-list">
+        <!-- JSで生成 -->
+    </div>
+
+    <p class="hint">
+        ※ 恒星名をクリックすると観測入力に反映されます
+    </p>
 </section>
 
 <section class="card">
     <h2>Observations (max 3)</h2>
 
     <div id="obs-container"></div>
-
     <button id="add-btn" onclick="addObservation()">観測追加</button>
 </section>
 
