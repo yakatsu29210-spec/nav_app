@@ -1,70 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="panel">
-    <h2>推測位置（DR Position）</h2>
 
-    <label>緯度（deg）:
-        <input id="init-lat" type="number" step="0.0001" value="35.0">
-    </label>
+<section class="card">
+    <h2>DR Position</h2>
 
-    <label>経度（deg）:
-        <input id="init-lon" type="number" step="0.0001" value="135.0">
-    </label>
+    <div class="grid">
+        <input id="lat" type="number" step="0.0001" placeholder="Latitude (deg)">
+        <input id="lon" type="number" step="0.0001" placeholder="Longitude (deg)">
+        <input id="time" type="datetime-local">
+    </div>
 
-    <label>眼高（m）:
-        <input id="eye" type="number" step="0.1" value="5">
-    </label>
-
-    <label>気圧（hPa）:
-        <input id="pressure" type="number" value="1013">
-    </label>
-
-    <label>気温（℃）:
-        <input id="temp" type="number" value="15">
-    </label>
+    <button onclick="loadVisibleStars()">可視恒星を表示</button>
 </section>
 
-<section class="panel">
-    <h2>観測入力（2〜3観測）</h2>
+<section class="card">
+    <h2>Visible Stars</h2>
+    <select id="visible-stars" size="6"></select>
+</section>
 
-    <table id="obs-table">
-        <thead>
-            <tr>
-                <th>天体</th>
-                <th>種別</th>
-                <th>高度（deg）</th>
-                <th>分（0.0〜59.9）</th>
-                <th>時刻（UTC）</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><input value="Sirius"></td>
-                <td>
-                    <select>
-                        <option value="star">Star</option>
-                        <option value="sun">Sun</option>
-                        <option value="moon">Moon</option>
-                        <option value="Venus">Venus</option>
-                        <option value="Mars">Mars</option>
-                        <option value="Jupiter">Jupiter</option>
-                        <option value="Saturn">Saturn</option>
-                    </select>
-                </td>
-                <td><input type="number" step="1"></td>
-                <td><input type="number" step="0.1"></td>
-                <td><input type="datetime-local"></td>
-            </tr>
-        </tbody>
-    </table>
+<section class="card">
+    <h2>Observations (max 3)</h2>
 
-    <button onclick="addRow()">観測追加</button>
+    <div id="obs-container"></div>
+
+    <button id="add-btn" onclick="addObservation()">観測追加</button>
+</section>
+
+<section class="card">
+    <h2>Result</h2>
+    <pre id="result">---</pre>
     <button onclick="computeFix()">位置計算</button>
 </section>
 
-<section class="panel">
-    <h2>計算結果</h2>
-    <pre id="result">---</pre>
-</section>
 {% endblock %}
