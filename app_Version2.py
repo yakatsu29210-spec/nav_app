@@ -169,55 +169,41 @@ def compute_fix():
         d["base_time"].replace("Z", "+00:00")
     )
 
-    eye = float(d.get("eye_height_m", 0))
-    p = float(d.get("pressure_hpa", 1013))
-    temp = float(d.get("temp_c", 15))
-
     obs = d["observations"]
-
-    if len(obs) < 2:
-        return jsonify({"error": "2観測以上が必要です"}), 400
 
     A = []
     b = []
 
-for o in obs:
-    obs_time = datetime.time.fromisoformat(
-        o["obs_time"].replace("Z", "")
-    )
+    for o in obs:
+        obs_time = datetime.time.fromisoformat(o["obs_time"])
 
-    t_obs = datetime.datetime.combine(
-        base_time.date(),
-        obs_time,
-        tzinfo=datetime.timezone.utc
-    )
+        t_obs = datetime.datetime.combine(
+            base_time.date(),
+            obs_time,
+            tzinfo=datetime.timezone.utc
+        )
 
-    # 日付跨ぎ補正
-    if t_obs < base_time:
-        t_obs += datetime.timedelta(days=1)
+        delta_h = (t_obs - base_time).total_seconds() / 3600.0
 
-    delta_h = (t_obs - base_time).total_seconds() / 3600.0
+        lat_dr, lon_dr = dr_position(
+            lat0, lon0,
+            course, speed,
+            delta_h
+        )
 
-    # DR位置
-    lat_dr, lon_dr = dr_position(
-        lat0, lon0,
-        course, speed,
-        delta_h
-    )
+        t = ts.from_datetime(t_obs)
 
-    t = ts.from_datetime(t_obs)
+        Hs = float(o["deg"]) + float(o["min"]) / 60.0
+        Ho = Hs
 
-    Hs = float(o["deg"]) + float(o["min"]) / 60.0
-    Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
+        star = next(s for s in STAR_CATALOG if s["id"] == o["id"])
 
-    star = next(s for s in STAR_CATALOG if s["id"] == o["id"])
-    Hc, Zn = compute_alt_az(lat_dr, lon_dr, star["obj"], t)
+        Hc, Zn = compute_alt_az(lat_dr, lon_dr, star["obj"], t)
 
-    a = (Ho - Hc) * 60.0
+        a = (Ho - Hc) * 60.0
 
-    A.append([cos(radians(Zn)), sin(radians(Zn))])
-    b.append(a)
-
+        A.append([cos(radians(Zn)), sin(radians(Zn))])
+        b.append(a)
 
     A = np.array(A)
     b = np.array(b)
@@ -227,9 +213,6 @@ for o in obs:
 
     lat = lat0 + dy / 60.0
     lon = lon0 + dx / (60.0 * cos(radians(lat0)))
-
-    lat = max(-90, min(90, lat))
-    lon = ((lon + 180) % 360) - 180
 
     err = sqrt(np.mean((A @ x - b) ** 2))
 
