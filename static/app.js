@@ -113,6 +113,9 @@ function computeFix() {
         body: JSON.stringify({
             initial_lat: document.getElementById("lat").value,
             initial_lon: document.getElementById("lon").value,
+            course_deg: document.getElementById("course").value,
+            speed_kt: document.getElementById("speed").value,
+            base_time: localToUTCISOString(document.getElementById("time").value),
             observations: obs
         })
     })
