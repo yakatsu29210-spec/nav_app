@@ -50,7 +50,7 @@ function addObservation() {
 
     const c = document.getElementById("obs-container");
     const div = document.createElement("div");
-    div.className = "grid";
+    div.className = "grid obs-row";
 
     div.innerHTML = `
         <select class="body">
@@ -62,8 +62,11 @@ function addObservation() {
         </select>
 
         <select class="star"></select>
+
         <input type="number" placeholder="deg">
         <input type="number" step="0.1" placeholder="min">
+
+        <input type="time" step="1" class="obs-time" title="Observation time (UTC)">
     `;
 
     const starSel = div.querySelector(".star");
