@@ -31,8 +31,15 @@
 </section>
 
 <section class="card">
-    <h2>Result</h2>
-    <pre id="result">---</pre>
+    <h2>Estimated Position</h2>
+
+    <div class="result-box">
+        <div><span>Latitude</span><strong id="res-lat">---</strong></div>
+        <div><span>Longitude</span><strong id="res-lon">---</strong></div>
+        <div><span>Observations</span><strong id="res-obs">---</strong></div>
+        <div><span>Error Radius</span><strong id="res-err">---</strong></div>
+    </div>
+
     <button onclick="computeFix()">位置計算</button>
 </section>
 
