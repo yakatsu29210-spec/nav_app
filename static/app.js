@@ -102,8 +102,9 @@ function computeFix() {
             id: g.querySelector(".star").value,
             deg: g.children[2].value,
             min: g.children[3].value,
-            time: localToUTCISOString(document.getElementById("time").value)
+            obs_time: g.querySelector(".obs-time").value
         });
+
     });
 
     fetch("/api/compute_fix", {
