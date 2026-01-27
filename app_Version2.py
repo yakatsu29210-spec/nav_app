@@ -181,7 +181,7 @@ def compute_fix():
 
     A, b = [], []
 
-    for o in obs:
+for o in obs:
     obs_time = datetime.time.fromisoformat(o["obs_time"])
 
     t_obs = datetime.datetime.combine(
