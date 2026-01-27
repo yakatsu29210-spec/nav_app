@@ -2,9 +2,9 @@ let obsCount = 0;
 const MAX_OBS = 3;
 let visibleStarsCache = [];
 
-/* UTC変換 */
-function localToUTCISOString(localValue) {
-    return new Date(localValue).toISOString();
+function toUTCString(value) {
+    if (!value) return null;
+    return value.endsWith("Z") ? value : value + "Z";
 }
 
 /* 可視恒星取得 */
