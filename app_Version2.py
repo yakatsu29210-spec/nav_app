@@ -233,12 +233,12 @@ for o in obs:
 
     err = sqrt(np.mean((A @ x - b) ** 2))
 
-        return jsonify({
-            "estimated_lat": round(lat, 6),
-            "estimated_lon": round(lon, 6),
-            "error_radius_nm": round(err, 3),
-            "used_observations": len(obs),
-            "fix_type": "Running Fix"
+    return jsonify({
+        "estimated_lat": round(lat, 6),
+        "estimated_lon": round(lon, 6),
+        "error_radius_nm": round(err, 3),
+        "used_observations": len(obs),
+        "fix_type": "Running Fix"
     })
 
 
