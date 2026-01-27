@@ -33,6 +33,44 @@ main {
     gap: 0.5rem;
 }
 
+/* 既存CSSはそのまま */
+
+.star-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+}
+
+.star-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    background: #f7f9fc;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.star-row:hover {
+    background: #dde9f5;
+}
+
+.star-row span {
+    font-size: 0.95rem;
+}
+
+.hint {
+    font-size: 0.85rem;
+    color: #555;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .star-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 input, select, button {
     font-size: 1rem;
     padding: 0.6rem;
