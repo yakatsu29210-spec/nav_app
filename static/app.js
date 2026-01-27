@@ -1,6 +1,13 @@
 let obsCount = 0;
 const MAX_OBS = 3;
+let visibleStarsCache = [];
 
+/* UTC変換 */
+function localToUTCISOString(localValue) {
+    return new Date(localValue).toISOString();
+}
+
+/* 可視恒星取得 */
 function loadVisibleStars() {
     fetch("/api/visible_stars", {
         method: "POST",
@@ -8,23 +15,36 @@ function loadVisibleStars() {
         body: JSON.stringify({
             lat: document.getElementById("lat").value,
             lon: document.getElementById("lon").value,
-            time: document.getElementById("time").value + "Z"
+            time: localToUTCISOString(document.getElementById("time").value)
         })
     })
     .then(r => r.json())
     .then(d => {
-        const sel = document.getElementById("visible-stars");
-        sel.innerHTML = "";
-
-        d.visible.forEach(s => {
-            const o = document.createElement("option");
-            o.value = s.id;
-            o.textContent = `${s.id} (HIP ${s.hip}) Alt ${s.alt_deg}`;
-            sel.appendChild(o);
-        });
+        visibleStarsCache = d.visible;
+        renderVisibleList();
     });
 }
 
+/* 可視恒星一覧描画 */
+function renderVisibleList() {
+    const list = document.getElementById("visible-list");
+    list.innerHTML = "";
+
+    visibleStarsCache.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "star-row";
+        row.innerHTML = `
+            <span>${s.id}</span>
+            <span>HIP ${s.hip}</span>
+            <span>Alt ${s.alt_deg}°</span>
+            <span>Az ${s.az_deg}°</span>
+        `;
+        row.onclick = () => selectStar(s.id);
+        list.appendChild(row);
+    });
+}
+
+/* 観測入力追加 */
 function addObservation() {
     if (obsCount >= MAX_OBS) return;
 
@@ -40,14 +60,18 @@ function addObservation() {
             <option value="Venus">Venus</option>
             <option value="Mars">Mars</option>
         </select>
+
         <select class="star"></select>
         <input type="number" placeholder="deg">
         <input type="number" step="0.1" placeholder="min">
     `;
 
     const starSel = div.querySelector(".star");
-    document.querySelectorAll("#visible-stars option").forEach(o => {
-        starSel.appendChild(o.cloneNode(true));
+    visibleStarsCache.forEach(s => {
+        const o = document.createElement("option");
+        o.value = s.id;
+        o.textContent = s.id;
+        starSel.appendChild(o);
     });
 
     c.appendChild(div);
@@ -58,6 +82,15 @@ function addObservation() {
     }
 }
 
+/* 一覧から恒星選択 */
+function selectStar(starId) {
+    const last = document.querySelector("#obs-container .grid:last-child select.star");
+    if (last) {
+        last.value = starId;
+    }
+}
+
+/* 位置計算 */
 function computeFix() {
     const obs = [];
     document.querySelectorAll("#obs-container .grid").forEach(g => {
@@ -66,7 +99,7 @@ function computeFix() {
             id: g.querySelector(".star").value,
             deg: g.children[2].value,
             min: g.children[3].value,
-            time: document.getElementById("time").value + "Z"
+            time: localToUTCISOString(document.getElementById("time").value)
         });
     });
 
