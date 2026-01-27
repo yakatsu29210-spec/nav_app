@@ -207,13 +207,13 @@ def compute_fix():
     Hs = float(o['deg']) + float(o['min']) / 60.0
     Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
 
-    # 天体取得（恒星のみ想定）
+    # 天体取得（恒星）
     star = next(s for s in STAR_CATALOG if s["id"] == o["id"])
 
-    # 計算高度・方位角（DR位置使用）
+    # 計算高度・方位角（DR位置）
     Hc, Zn = compute_alt_az(lat_dr, lon_dr, star["star_obj"], t)
 
-    # 截距
+    # 截距（Intercept）
     a = (Ho - Hc) * 60.0
 
     A.append([cos(radians(Zn)), sin(radians(Zn))])
