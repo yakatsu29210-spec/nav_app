@@ -92,3 +92,37 @@ button:disabled {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+.result-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    background: #0e1a24;
+    color: #e8f1ff;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: "Consolas", monospace;
+}
+
+.result-box div {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed #35506b;
+    padding-bottom: 0.3rem;
+}
+
+.result-box span {
+    color: #9bb3cc;
+}
+
+.result-box strong {
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 600px) {
+    .result-box {
+        font-size: 0.9rem;
+    }
+}
+
