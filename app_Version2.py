@@ -182,7 +182,6 @@ def compute_fix():
     A, b = [], []
 
     for o in obs:
-    # 観測時刻（UTC）
     obs_time = datetime.time.fromisoformat(o["obs_time"])
     t_obs = datetime.datetime.combine(
         base_time.date(),
