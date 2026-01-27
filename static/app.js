@@ -114,9 +114,18 @@ function computeFix() {
     })
     .then(r => r.json())
     .then(d => {
-        document.getElementById("result").textContent =
-            JSON.stringify(d, null, 2);
-    });
+    document.getElementById("res-lat").textContent =
+        formatLat(d.estimated_lat);
+
+    document.getElementById("res-lon").textContent =
+        formatLon(d.estimated_lon);
+
+    document.getElementById("res-obs").textContent =
+        `${d.used_observations} bodies`;
+
+    document.getElementById("res-err").textContent =
+        `±${d.error_radius_nm} NM`;
+　　});
 }
 
 function formatLat(lat) {
