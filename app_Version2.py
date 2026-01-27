@@ -117,6 +117,12 @@ def bennett_refraction(hs_deg, pressure, temp):
     R = 1.02 / tan(alt + 10.3 / (hs_deg + 5.11))
     return R * (pressure / 1010.0) * (283.0 / (273.0 + temp)) / 60.0
 
+def dr_position(lat0, lon0, course_deg, speed_kt, delta_hours):
+    distance = speed_kt * delta_hours  # NM
+    dlat = distance * cos(radians(course_deg)) / 60.0
+    dlon = distance * sin(radians(course_deg)) / (60.0 * cos(radians(lat0)))
+    return lat0 + dlat, lon0 + dlon
+
 def compute_alt_az(lat, lon, body, t):
     obs = eph['earth'] + Topos(latitude_degrees=lat, longitude_degrees=lon)
     alt, az, _ = obs.at(t).observe(body).apparent().altaz()
