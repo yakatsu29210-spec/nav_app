@@ -118,3 +118,19 @@ function computeFix() {
             JSON.stringify(d, null, 2);
     });
 }
+
+function formatLat(lat) {
+    const dir = lat >= 0 ? "N" : "S";
+    lat = Math.abs(lat);
+    const d = Math.floor(lat);
+    const m = ((lat - d) * 60).toFixed(3);
+    return `${d}° ${m}′ ${dir}`;
+}
+
+function formatLon(lon) {
+    const dir = lon >= 0 ? "E" : "W";
+    lon = Math.abs(lon);
+    const d = Math.floor(lon);
+    const m = ((lon - d) * 60).toFixed(3);
+    return `${d}° ${m}′ ${dir}`;
+}
