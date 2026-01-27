@@ -165,6 +165,12 @@ def compute_fix():
     if not (-90 <= lat0 <= 90 and -180 <= lon0 <= 180):
         return jsonify({"error": "初期位置が不正です"}), 400
 
+    course = float(d.get("course_deg", 0))
+    speed = float(d.get("speed_kt", 0))
+    base_time = datetime.datetime.fromisoformat(
+    d["base_time"].replace("Z", "+00:00")
+    )
+
     eye = float(d.get('eye_height_m', 0))
     p = float(d.get('pressure_hpa', 1013))
     temp = float(d.get('temp_c', 15))
@@ -176,31 +182,42 @@ def compute_fix():
     A, b = [], []
 
     for o in obs:
-        t = ts.from_datetime(datetime.datetime.fromisoformat(o['time'].replace('Z', '+00:00')))
-        deg = float(o['deg'])
-        minute = float(o['min'])
+    # 観測時刻（UTC）
+    obs_time = datetime.time.fromisoformat(o["obs_time"])
+    t_obs = datetime.datetime.combine(
+        base_time.date(),
+        obs_time,
+        tzinfo=pytz.UTC
+    )
 
-        if not (0 <= minute < 60):
-            return jsonify({"error": "分は0〜60未満"}), 400
+    # 観測時刻差（hour）
+    delta_h = (t_obs - base_time).total_seconds() / 3600.0
 
-        Hs = deg + minute / 60.0
-        Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
+    # DR位置
+    lat_dr, lon_dr = dr_position(
+        lat0, lon0,
+        course, speed,
+        delta_h
+    )
 
-        # 天体取得
-        if o['type'] == 'star':
-            body = next(s["obj"] for s in STAR_CATALOG if s["id"] == o["id"])
-        elif o['type'] == 'sun':
-            body = SUN
-        elif o['type'] == 'moon':
-            body = MOON
-        else:
-            body = PLANETS[o['id']]
+    # Skyfield時刻
+    t = ts.from_datetime(t_obs)
 
-        Hc, Zn = compute_alt_az(lat0, lon0, body, t)
-        a = (Ho - Hc) * 60.0
+    # 観測高度
+    Hs = float(o['deg']) + float(o['min']) / 60.0
+    Ho = Hs + dip_correction(eye) + bennett_refraction(Hs, p, temp)
 
-        A.append([cos(radians(Zn)), sin(radians(Zn))])
-        b.append(a)
+    # 天体取得（恒星のみ想定）
+    star = next(s for s in STAR_CATALOG if s["id"] == o["id"])
+
+    # 計算高度・方位角（DR位置使用）
+    Hc, Zn = compute_alt_az(lat_dr, lon_dr, star["star_obj"], t)
+
+    # 截距
+    a = (Ho - Hc) * 60.0
+
+    A.append([cos(radians(Zn)), sin(radians(Zn))])
+    b.append(a)
 
     A = np.array(A)
     b = np.array(b)
